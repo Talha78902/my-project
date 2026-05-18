@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+
+    <!-- PWA / App-like -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="AgriMind" />
+    <meta name="theme-color" content="#1b4332" />
+
+    <!-- SEO / Social -->
+    <meta name="description" content="AgriMind — Free AI farm advisor powered by Groq + Llama 3. Crop advice, disease diagnosis, fertilizer calc in English, Urdu & Sindhi." />
+    <meta name="application-name" content="AgriMind" />
+
+    <title>AgriMind — AI Farm Advisor</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌾</text></svg>" />
+
+    <!-- Apple touch icon (for home screen) -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231b4332'/><text y='.85em' font-size='75' x='12'>🌾</text></svg>" />
+
+    <!-- PWA Manifest (inline) -->
+    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22AgriMind%22%2C%22short_name%22%3A%22AgriMind%22%2C%22description%22%3A%22Free%20AI%20farm%20advisor%22%2C%22start_url%22%3A%22%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%231b4332%22%2C%22theme_color%22%3A%22%231b4332%22%2C%22orientation%22%3A%22portrait%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20512%20512%27%3E%3Crect%20width%3D%27512%27%20height%3D%27512%27%20rx%3D%27100%27%20fill%3D%27%231b4332%27%2F%3E%3Ctext%20y%3D%27.85em%27%20font-size%3D%27380%27%20x%3D%2765%27%3E%F0%9F%8C%BE%3C%2Ftext%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D" />
+
+    <style>
+      /* Prevent flash of unstyled content + remove mobile tap delay */
+      html, body, #root { margin: 0; padding: 0; height: 100%; }
+      body {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        overscroll-behavior: none;
+        background: #1b4332;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+
+    <!-- Register PWA service worker if supported -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          // Minimal inline service worker for offline shell caching
+          const sw = `
+            const CACHE = 'agrimind-v1';
+            self.addEventListener('install', e => {
+              e.waitUntil(caches.open(CACHE).then(c => c.addAll(['/'])));
+              self.skipWaiting();
+            });
+            self.addEventListener('activate', e => { self.clients.claim(); });
+            self.addEventListener('fetch', e => {
+              if (e.request.method !== 'GET') return;
+              e.respondWith(
+                fetch(e.request).catch(() => caches.match(e.request))
+              );
+            });
+          `;
+          const blob = new Blob([sw], { type: 'application/javascript' });
+          const url = URL.createObjectURL(blob);
+          navigator.serviceWorker.register(url).catch(() => {});
+        });
+      }
+    </script>
+  </body>
+</html>
